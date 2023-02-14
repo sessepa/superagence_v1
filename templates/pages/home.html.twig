@@ -1,0 +1,34 @@
+{% extends 'base.html.twig' %}
+{% block title'Agence lorem ipsum'%}
+{% block body %}
+    <!-- générer la classe jumbotron: .jumbotron.tet.center puis Tab -->
+ <div class="jumbotron text-center">
+     <h1>Agence lorem ipsum</h1>
+     <!-- générer un paragraphe : lorem puis tab -->
+     <p>
+         Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusantium, autem debitis distinctio dolor est,
+         exercitationem explicabo libero maxime molestiae nemo, nulla officia quam quas ratione tempore! Consequuntur delectus iure possimus.
+     </p>
+ </div>
+
+ <div class="container">
+     <h2>Les derniers biens</h2>
+    <div class="row flex">
+        {% for properti in properties %}
+            <div class="col-3">
+                <div class="card">
+                    <div class="card-body">
+                        <H5 class="card-title">
+                            <a href="{{ path('property.show',{id: properti.id, slug: properti.slug}) }}">{{ properti.title }}</a>
+                        </H5>
+                        <p class="card-text">{{ properti.city }} ({{ properti.postalcode }})</p>
+                        <div class="text-primary" style = "font-weight: bold;font-size: 2rem">{{ properti.getFormattedPrice() }} € </div>
+                    </div>
+                </div>
+            </div>
+
+        {% endfor %}
+    </div>
+ </div>
+
+{% endblock %}
