@@ -2,14 +2,21 @@
 
 namespace App\Entity;
 
+use App\Entity\Trait\CreatedAtTrait;
 use App\Repository\PropertiRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Cocur\Slugify\Slugify;
 use phpDocumentor\Reflection\Types\Boolean;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Validator\ConstraintValidator;
 
 #[ORM\Entity(repositoryClass: PropertiRepository::class)]
+#[UniqueEntity('title')]
 class Properti
 {
+    //Utilise la date de creation définit dans Entity\Trait\CreatedAtTrait.php
+    use CreatedAtTrait;
     const HEAT = [
         0 =>'Electric',
         1 =>'Gaz',
@@ -30,6 +37,12 @@ class Properti
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $description ;
 
+
+    #[Assert\Range(
+        min: 10,
+        max: 2500,
+        notInRangeMessage:'Cette valeur doit être comprise entre  {{ min }} m² et {{ max }} m²'
+    )]
     #[ORM\Column]
     private ?int $surface ;
 
@@ -43,7 +56,7 @@ class Properti
     private ?int $floor ;
 
     #[ORM\Column]
-    private ?int $price ;
+    private ?float $price ;
 
     #[ORM\Column]
     private ?int $heat ;
@@ -57,17 +70,12 @@ class Properti
     #[ORM\Column]
     private ?bool $sold ;
 
-    #[ORM\Column]
-    private ?\DateTime $created_at;
-
+    #[Assert\Regex('/^[0-9]{5}$/')]
     #[ORM\Column(length: 6)]
     private ?string $postalcode;
 
-
-
-
-    public function __Construct(){
-        $this->created_at = new \DateTime();
+    public function __construct(){
+        $this->created_at = new \DateTimeImmutable();
 
     }
     public function getId(): ?int
@@ -155,12 +163,12 @@ class Properti
         return $this;
     }
 
-    public function getPrice(): ?int
+    public function getPrice(): ?float
     {
         return $this->price;
     }
 
-    public function setPrice(int $price): self
+    public function setPrice(float $price): self
     {
         $this->price = $price;
 
@@ -224,18 +232,6 @@ class Properti
     public function setSold(bool $sold): self
     {
         $this->sold = $sold;
-
-        return $this;
-    }
-
-    public function getCreatedAt(): ?\DateTimeImmutable
-    {
-        return $this->created_at;
-    }
-
-    public function setCreatedAt(\DateTimeImmutable $created_at): self
-    {
-        $this->created_at = $created_at;
 
         return $this;
     }

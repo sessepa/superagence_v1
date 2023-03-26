@@ -3,38 +3,65 @@
 {% block body %}
 
  <div class="container mt-4">
-
      <h1>Gérer les biens</h1>
+      <!-- Affiche de message après une action (ajoutéer, editer, supprimer)-->
+     {% for message in app.flashes('success') %}
+         <div class="alert alert-success">
+             {{ message }}
+         </div>
+     {% endfor %}
 
      <table class="table table-striped">
      <thead>
        <tr>
            <th>Titre</th>
+           <th>Adresse</th>
+           <th>Ville</th>
+           <th>Code postal</th>
+           <th>Vendu</th>
            <th>Actions</th>
        </tr>
 
        <body>
            {% for properti in properties %}
            <tr>
-               <td>{{ properti.title }}</td>
+               <td>{{properti.title }}</td>
+               <td>{{properti.adresse}}</td>
+               <td>{{properti.city}}</td>
+               <td>{{properti.postalcode}}</td>
+               <td>{{properti.sold}}</td>
                <td>
-                   <a href="{{ path('admin.property.index', {id: properti.id}) }}" class="btn btn-secondary">Editer</a>
-               </td>
+                   <a href="{{ path('admin.property.edit', {id: properti.id}) }}" class="btn btn-secondary">Editer</a>
+                   <!-- On crée un petit formulaire pour gérer la suppression d'un bien--->
+                   <form
+                         method="post"
+                         style="display: inline-block"
+                         action="{{ path('admin.property.delete', {id: properti.id}) }}"
+                         onsubmit="return confirm('Êtes-vous vraiment sûre de supprimer ce bien ?')">
 
+                       <!-- Pour gérer la method _method dans le navigateur, car un formulaire ne prend à charge que les methods GET et POST -->
+                       <input type="hidden" name="_method" value="DELETE">
+
+                       <!-- Sécurité lors de la suppression d'un bien.  -->
+                       <input type="hidden" name="_token" value="{{ csrf_token('delete'~ properti.id) }}">
+
+                       <button class="btn btn-danger" style="">Supprimer</button>
+                   </form>
+               </td>
            </tr>
            {% endfor %}
        </body>
-
-
-
      </table>
+     <!-- Pour ajouter un lien de suppression d'un bien -->
+     <div class="text-right">
+         <a href="{{ path('admin.property.new') }}" class="btn btn-primary">Créer un nouveau bien</a>
+     </div>
 
      </thead>
 
 
 
  </div>
-
 
 
 {% endblock %}

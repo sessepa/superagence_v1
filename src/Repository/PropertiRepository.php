@@ -3,8 +3,10 @@
 namespace App\Repository;
 
 use App\Entity\Properti;
+use App\Entity\PropertiSearch;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
+use Doctrine\ORM\Query;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -41,12 +43,25 @@ class PropertiRepository extends ServiceEntityRepository
     }
 
     /**
-     * @return Properti[]
+     * Ici on renvoie la requête( via Query) et non le résultat de la requête, car nous voulons faire la pagination
+     * @return Query
      */
-    public function findAllVisible(): array {
-        return $this->findVisibleQuery()
-            ->getQuery()
-            ->getResult();
+    public function findAllVisibleQuery(PropertiSearch $search): Query{
+        $query= $this->findVisibleQuery();
+
+        //On peut faire un contrôle sur la prix max saisi
+        if($search->getMaxPrice()){
+            $query=$query
+                 ->andWhere('p.price <= :maxprice')
+                 ->setParameter('maxprice',$search->getMaxPrice());
+        }
+        //On peut faire un contrôle sur la surface min saisi
+        if($search->getMinSurface()){
+            $query=$query
+                ->andWhere('p.surface >= :minsurface')
+                ->setParameter('minsurface',$search->getMinSurface());
+        }
+          return $query->getQuery();
     }
 
     /**

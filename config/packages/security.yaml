@@ -4,14 +4,25 @@ security:
         Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
     # https://symfony.com/doc/current/security.html#loading-the-user-the-user-provider
     providers:
-        users_in_memory: { memory: null }
+        # used to reload user from session & other features (e.g. switch_user)
+        app_user_provider:
+            entity:
+                class: App\Entity\User
+                property: email
+
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
+
         main:
             lazy: true
-            provider: users_in_memory
+            provider: app_user_provider
+            custom_authenticator: App\Security\UserAuthenticator
+            logout:
+                path: app_logout  # Le nom de la route qui contient logout
+                # where to redirect after logout (redirection vers une page une fois déconnecter)
+#                 target: app_any_route
 
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#the-firewall
@@ -22,8 +33,13 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
-        # - { path: ^/admin, roles: ROLE_ADMIN }
-        # - { path: ^/profile, roles: ROLE_USER }
+          - { path: ^/admin, roles: ROLE_ADMIN }
+          - { path: ^/profile, roles: ROLE_USER }
+
+    role_hierarchy:
+        ROLE_BIEN_ADMIN: ROLE_USER    # Le role "bien admin" va hérité (supérieur) des droits du role "user"
+        ROLE_ADMIN: ROLE_BIEN_ADMIN    # Le role "admin" va hérité (supérieur) des droits du role "bien admin"
+        ROLE_SUPER_ADMIN: ROLE_ADMIN   # Le role "Super admin" va hérité (supérieur) des droitsdu role "admin"
 
 when@test:
     security:
